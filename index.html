@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Drifter - Présentation Pixelisée</title>
+    <style>
+        :root {
+            --primary: #8e44ad;       /* Violet */
+            --secondary: #3498db;     /* Bleu */
+            --dark: #2c3e50;          /* Bleu foncé */
+            --light: #ecf0f1;         /* Blanc cassé */
+            --accent: #f1c40f;        /* Jaune */
+            --success: #2ecc71;       /* Vert */
+            --danger: #e74c3c;        /* Rouge */
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Press Start 2P', 'Courier New', monospace;
+        }
+        
+        body {
+            background-color: var(--dark);
+            color: var(--light);
+            overflow: hidden;
+        }
+        
+        .pixel-container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .presentation {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.5s ease;
+        }
+        
+        .slide {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: all 0.5s ease;
+            overflow-y: auto;
+        }
+        
+        .slide.active {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        
+        .pixel-title {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 2rem;
+            text-shadow: 3px 3px 0 rgba(0,0,0,0.5);
+            letter-spacing: 2px;
+            position: relative;
+            text-align: center;
+        }
+        
+        .pixel-subtitle {
+            font-size: 1.8rem;
+            color: var(--secondary);
+            margin-bottom: 1.5rem;
+        }
+        
+        .pixel-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--secondary);
+            box-shadow: 2px 2px 0 rgba(0,0,0,0.5);
+        }
+        
+        .pixel-content {
+            max-width: 80%;
+            text-align: center;
+            font-size: 1.2rem;
+            line-height: 1.6;
+            margin-bottom: 2rem;
+        }
+        
+        .pixel-button {
+            background-color: var(--secondary);
+            color: var(--dark);
+            border: none;
+            padding: 12px 24px;
+            font-size: 1rem;
+            cursor: pointer;
+            box-shadow: 4px 4px 0 rgba(0,0,0,0.3);
+            transition: all 0.2s ease;
+            margin: 10px;
+            font-weight: bold;
+            text-transform: uppercase;
+            image-rendering: pixelated;
+        }
+        
+        .pixel-button:hover {
+            transform: translate(2px, 2px);
+            box-shadow: 2px 2px 0 rgba(0,0,0,0.3);
+            background-color: var(--accent);
+        }
+        
+        .nav-buttons {
+            position: fixed;
+            bottom: 20px;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            z-index: 10;
+        }
+        
+        .pixel-art {
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+            margin: 20px 0;
+        }
+        
+        .pixel-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            grid-gap: 20px;
+            width: 80%;
+            margin: 20px auto;
+        }
+        
+        .pixel-item {
+            background-color: var(--dark);
+            padding: 15px;
+            border: 4px solid var(--secondary);
+            box-shadow: 6px 6px 0 rgba(0,0,0,0.2);
+            color: var(--light);
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .pixel-item:hover {
+            transform: scale(1.05);
+            background-color: var(--secondary);
+            color: var(--dark);
+        }
+        
+        /* Animation des pixels */
+        .pixel {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: var(--primary);
+            z-index: -1;
+            opacity: 0.7;
+            animation: float 10s infinite linear;
+        }
+        
+        @keyframes float {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 0.7;
+            }
+            50% {
+                opacity: 0.3;
+            }
+            100% {
+                transform: translateY(-1000px) rotate(720deg);
+                opacity: 0;
+            }
+        }
+        
+        /* Pour les éléments pixelisés */
+        .pixel-border {
+            position: relative;
+            padding: 20px;
+        }
+        
+        .pixel-border::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border: 4px solid transparent;
+            border-image: linear-gradient(to right, var(--primary), var(--secondary)) 1;
+        }
+        
+        /* Image pixelisée */
+        .pixel-image {
+            width: 200px;
+            height: 200px;
+            background-color: var(--secondary);
+            position: relative;
+            margin: 20px auto;
+            overflow: hidden;
+        }
+        
+        .pixel-image::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                to right,
+                transparent,
+                transparent 10px,
+                rgba(0,0,0,0.1) 10px,
+                rgba(0,0,0,0.1) 20px
+            );
+        }
+        
+        .pixel-image::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                to bottom,
+                transparent,
+                transparent 10px,
+                rgba(0,0,0,0.1) 10px,
+                rgba(0,0,0,0.1) 20px
+            );
+        }
+        
+        /* Animations pour le texte */
+        .typewriter {
+            overflow: hidden;
+            border-right: 4px solid var(--accent);
+            white-space: nowrap;
+            margin: 0 auto;
+            letter-spacing: 0.15em;
+            animation: typing 3.5s steps(40, end), blink-caret 0.75s step-end infinite;
+        }
+        
+        @keyframes typing {
+            from { width: 0 }
+            to { width: 100% }
+        }
+        
+        @keyframes blink-caret {
+            from, to { border-color: transparent }
+            50% { border-color: var(--accent); }
+        }
+        
+        /* Progress bar */
+        .progress-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 10px;
+            background-color: var(--dark);
+            z-index: 20;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background-color: var(--primary);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        /* Listes pixelisées */
+        .pixel-list {
+            list-style-type: none;
+            width: 80%;
+            margin: 0 auto;
+            text-align: left;
+        }
+        
+        .pixel-list li {
+            margin-bottom: 15px;
+            padding-left: 30px;
+            position: relative;
+        }
+        
+        .pixel-list li:before {
+            content: '►';
+            color: var(--accent);
+            position: absolute;
+            left: 0;
+        }
+        
+        /* Styles pour les tableaux */
+        .pixel-table {
+            width: 80%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin: 20px auto;
+        }
+        
+        .pixel-table th, .pixel-table td {
+            padding: 12px;
+            text-align: center;
+            border: 2px solid var(--secondary);
+        }
+        
+        .pixel-table th {
+            background-color: var(--primary);
+            color: var(--light);
+        }
+        
+        .pixel-table tr:nth-child(even) {
+            background-color: rgba(52, 152, 219, 0.1);
+        }
+        
+        /* Icônes pixelisées */
+        .pixel-icon {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            background-color: var(--accent);
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+        
+        /* Style pour les forces/faiblesses/opportunités/menaces */
+        .swot-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-gap: 15px;
+            width: 80%;
+            margin: 20px auto;
+        }
+        
+        .swot-box {
+            padding: 15px;
+            border: 3px solid;
+            position: relative;
+        }
+        
+        .swot-box h4 {
+            position: absolute;
+            top: -12px;
+            left: 10px;
+            background-color: var(--dark);
+            padding: 0 10px;
+        }
+        
+        .swot-strengths {
+            border-color: var(--success);
+        }
+        
+        .swot-strengths h4 {
+            color: var(--success);
+        }
+        
+        .swot-weaknesses {
+            border-color: var(--danger);
+        }
+        
+        .swot-weaknesses h4 {
+            color: var(--danger);
+        }
+        
+        .swot-opportunities {
+            border-color: var(--accent);
+        }
+        
+        .swot-opportunities h4 {
+            color: var(--accent);
+        }
+        
+        .swot-threats {
+            border-color: var(--secondary);
+        }
+        
+        .swot-threats h4 {
+            color: var(--secondary);
+        }
+        
+        .slide-indicator {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            background-color: rgba(0,0,0,0.5);
+            color: var(--light);
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+        }
+        
+        /* Ajout d'une classe pour les boutons emoji */
+        .emoji-title {
+            font-size: 1.6rem;
+            margin-bottom: 1rem;
+        }
+        
+        .emoji-title span {
+            font-size: 2rem;
+            margin-right: 10px;
+        }
+        
+        /* Animation pour slide actif */
+        @keyframes pixelate {
+            0% { filter: blur(5px); }
+            100% { filter: blur(0); }
+        }
+        
+        .slide.active {
+            animation: pixelate 0.5s ease-out forwards;
+        }
+        
+        /* Style pour les architectures */
+        .architecture-flow {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            margin: 20px 0;
+            width: 90%;
+        }
+        
+        .architecture-box {
+            background-color: var(--primary);
+            color: var(--light);
+            padding: 15px;
+            margin: 0 10px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .architecture-arrow {
+            font-size: 2rem;
+            margin: 0 5px;
+            color: var(--accent);
+        }
+    </style>
+</head>
+<body>
+    <div class="progress-container">
+        <div class="progress-bar" id="progressBar"></div>
+    </div>
+    
+    <div class="pixel-container" id="pixelContainer">
+        <div class="presentation" id="presentation">
+            
+            <!-- Slide 1 : Page de garde -->
+            <div class="slide active" id="slide1">
+                <h1 class="pixel-title typewriter">DIGITAL DRIFTER</h1>
+                <p class="pixel-content">Une plateforme immersive dédiée à la collaboration et aux relations scolaires</p>
+                <div class="pixel-image"></div>
+                <p class="pixel-content">[Nom du candidat]<br>Date de soutenance</p>
+            </div>
+            
+            <!-- Slide 2 : Introduction -->
+            <div class="slide" id="slide2">
+                <h2 class="emoji-title"><span>🎬</span> INTRODUCTION</h2>
+                <div class="pixel-border">
+                    <ul class="pixel-list">
+                        <li>École d'art : besoin d'un espace numérique immersif et créatif</li>
+                        <li>Plateforme intranet sous forme de monde 2D, type <strong>Gather</strong>, pour <strong>échanger, créer, exposer</strong></li>
+                        <li>Objectif : offrir aux étudiants un espace numérique stimulant, sans dépendre d'Internet</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Slide 3 : Cartographie des parties prenantes -->
+            <div class="slide" id="slide3">
+                <h2 class="emoji-title"><span>🧩</span> CARTOGRAPHIE DES PARTIES PRENANTES</h2>
+                <div class="pixel-grid">
+                    <div class="pixel-item">
+                        <h3>Commanditaire</h3>
+                        <p>École, équipe pédagogique</p>
+                    </div>
+                    <div class="pixel-item">
+                        <h3>Utilisateurs</h3>
+                        <p>Étudiants, enseignants, administration</p>
+                    </div>
+                    <div class="pixel-item">
+                        <h3>Équipe projet</h3>
+                        <p>1 développeur fullstack, administration système et réseaux, 1 graphiste</p>
+                    </div>
+                    <div class="pixel-item">
+                        <h3>Autres acteurs</h3>
+                        <p>Maintenance IT</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Slide 4 : Analyse des besoins et des enjeux -->
+            <div class="slide" id="slide4">
+                <h2 class="emoji-title"><span>🔍</span> ANALYSE DES BESOINS ET DES ENJEUX</h2>
+                <div class="pixel-grid" style="grid-template-columns: 1fr;">
+                    <div class="pixel-item">
+                        <h3>Besoins fonctionnels</h3>
+                        <p>Messagerie interne, espaces collaboratifs, expositions virtuelles, navigation libre</p>
+                    </div>
+                    <div class="pixel-item">
+                        <h3>Contraintes</h3>
+                        <p>Autonomie complète du réseau, accessibilité sans Internet, matériel à ressources limitées (Raspberry Pi)</p>
+                    </div>
+                    <div class="pixel-item">
+                        <h3>Enjeux</h3>
+                        <p>Pédagogiques : stimuler la création et la collaboration<br>
+                        Techniques : garantir performance & accessibilité locale</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Slide 5 : Étude d'opportunité -->
+            <div class="slide" id="slide5">
+                <h2 class="emoji-title"><span>🧭</span> ÉTUDE D'OPPORTUNITÉ</h2>
+                <div class="swot-container">
+                    <div class="swot-box swot-strengths">
+                        <h4>Forces ✅</h4>
+                        <ul class="pixel-list">
+                            <li>Innovation pédagogique</li>
+                            <li>Maîtrise des données</li>
+                            <li>Faible coût matériel</li>
+                        </ul>
+                    </div>
+                    <div class="swot-box swot-weaknesses">
+                        <h4>Faiblesses ⚠️</h4>
+                        <ul class="pixel-list">
+                            <li>Puissance limitée (Raspberry Pi)</li>
+                            <li>Maintenance interne</li>
+                            <li>Non accessible hors site</li>
+                        </ul>
+                    </div>
+                    <div class="swot-box swot-opportunities">
+                        <h4>Opportunités 🚀</h4>
+                        <ul class="pixel-list">
+                            <li>Valorisation étudiants</li>
+                            <li>Autonomie école</li>
+                            <li>Extension potentielle</li>
+                        </ul>
+                    </div>
+                    <div class="swot-box swot-threats">
+                        <h4>Menaces ⚡</h4>
+                        <ul class="pixel-list">
+                            <li>Risque cybersécurité interne</li>
+                            <li>Montée en charge</li>
+                            <li>Pérennité matériel</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Slide 6 : Choix techniques -->
+            <div class="slide" id="slide6">
+                <h2 class="emoji-title"><span>⚙️</span> CHOIX TECHNIQUES</h2>
+                <div class="pixel-content">
+                    <ul class="pixel-list">
+                        <li><strong>Phaser</strong> : performant pour du rendu 2D en canvas, facile à intégrer dans React</li>
+                        <li><strong>Express</strong> : léger, modulaire, bonne compatibilité avec l'environnement Node/Raspberry</li>
+                    </ul>
+                </div>
+                <table class="pixel-table">
+                    <tr>
+                        <th>Critères</th>
+                        <th>PhaserJS + React</th>
+                        <th>Unity</th>
+                        <th>WebGL seul</th>
+                    </tr>
+                    <tr>
+                        <td>Performance</td>
+                        <td>✅</td>
+                        <td>⚠️</td>
+                        <td>✅</td>
+                    </tr>
+                    <tr>
+                        <td>Facilité d'intégration</td>
+                        <td>✅</td>
+                        <td>⚠️</td>
+                        <td>❌</td>
+                    </tr>
+                    <tr>
+                        <td>Poids ressources</td>
+                        <td>✅</td>
+                        <td>❌</td>
+                        <td>✅</td>
+                    </tr>
+                    <tr>
+                        <td>Compatibilité Raspberry Pi</td>
+                        <td>✅</td>
+                        <td>❌</td>
+                        <td>⚠️</td>
+                    </tr>
+                </table>
+            </div>
+            
+            <!-- Slide 7 : Architecture logicielle -->
+            <div class="slide" id="slide7">
+                <h2 class="emoji-title"><span>📐</span> ARCHITECTURE LOGICIELLE</h2>
+                <div class="architecture-flow">
+                    <div class="architecture-box">Frontend<br>(React/PhaserJS)</div>
+                    <div class="architecture-arrow">⟶</div>
+                    <div class="architecture-box">Backend<br>(ExpressJS, API REST & WebSocket)</div>
+                    <div class="architecture-arrow">⟶</div>
+                    <div class="architecture-box">Base de données<br>(SQLite)</div>
+                    <div class="architecture-arrow">⟶</div>
+                    <div class="architecture-box">Réseau local privé<br>de l'école</div>
+                </div>
+                <div class="pixel-border">
+                    <p class="pixel-content">
+                        <strong>Justification des choix technologiques :</strong> Légèreté, compatibilité Raspberry Pi, performance adaptée au nombre d'utilisateurs
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Slide 8 : Macro-chiffrage -->
+            <div class="slide" id="slide8">
+                <h2 class="emoji-title"><span>⏱</span> MACRO-CHIFFRAGE</h2>
+                <table class="pixel-table">
+                    <tr>
+                        <th>Tâches</th>
+                        <th>Développeur</th>
+                        <th>Graphiste</th>
+                        <th>Total (jours-homme)</th>
+                    </tr>
+                    <tr>
+                        <td>Conception initiale</td>
+                        <td>4</td>
+                        <td>1</td>
+                        <td>5</td>
+                    </tr>
+                    <tr>
+                        <td>Développement frontend</td>
+                        <td>15</td>
+                        <td>-</td>
+                        <td>15</td>
+                    </tr>
+                    <tr>
+                        <td>Développement backend</td>
+                        <td>12</td>
+                        <td>-</td>
+                        <td>12</td>
+                    </tr>
+                    <tr>
+                        <td>Création assets graphiques</td>
+                        <td>-</td>
+                        <td>15</td>
+                        <td>15</td>
+                    </tr>
+                    <tr>
+                        <td>Déploiement et tests</td>
+                        <td>4</td>
+                        <td>2</td>
+                        <td>6</td>
+                    </tr>
+                    <tr>
+                        <td>Documentation</td>
+                        <td>2</td>
+                        <td>-</td>
+                        <td>2</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Total</strong></td>
+                        <td><strong>37</strong></td>
+                        <td><strong>18</strong></td>
+                        <td><strong>55</strong></td>
+                    </tr>
+                </table>
+                <p class="pixel-content">
+                    <strong>Postes principaux :</strong> Temps humain, matériel complémentaire (mémoire, réseau)
+                </p>
+            </div>
+            
+            <!-- Slide 9 : Démarche de veille & innovation -->
+            <div class="slide" id="slide9">
+                <h2 class="emoji-title"><span>🧠</span> DÉMARCHE DE VEILLE & INNOVATION</h2>
+                <div class="pixel-grid" style="grid-template-columns: 1fr;">
+                    <div class="pixel-item">
+                        <h3>Méthodes utilisées</h3>
+                        <p>Blogs spécialisés, conférences en ligne, documentation officielle</p>
+                    </div>
+                    <div class="pixel-item">
+                        <h3>Technologies monitorées</h3>
+                        <p>Frameworks JS légers, outils d'optimisation WebGL, interactions sans Internet</p>
+                    </div>
+                    <div class="pixel-item">
+                        <h3>Innovations intégrées</h3>
+                        <p>Réseau local autonome, utilisation cluster Raspberry Pi, intégration PhaserJS</p>
+                    </div>
+                    <div class="pixel-item">
+                        <h3>Impact prévu</h3>
+                        <p>Autonomie, engagement pédagogique renforcé, optimisation budgétaire</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Slide 10 : Conclusion -->
+            <div class="slide" id="slide10">
+                <h2 class="emoji-title">CONCLUSION</h2>
+                <div class="pixel-border">
+                    <ul class="pixel-list">
+                        <li><strong>Points clés :</strong> Autonomie, coût minimal, innovation pédagogique</li>
+                        <li><strong>Feuille de route :</strong> Tests utilisateurs, déploiement, retours d'expérience</li>
+                        <li><strong>Demande de validation formelle du projet</strong></li>
+                    </ul>
+                </div>
+                <div class="pixel-grid">
+                    <div class="pixel-item">
+                        <p>MERCI DE VOTRE ATTENTION</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Slide 11 : Questions/Réponses -->
+            <div class="slide" id="slide11">
+                <h1 class="pixel-title">QUESTIONS / RÉPONSES</h1>
+                <div class="pixel-image"></div>
+                <p class="pixel-content">Échange avec le jury</p>
+                <p class="pixel-content">Coordonnées / lien vers démonstration ou prototype</p>
+            </div>
+            
+        </div>
+    </div>
+    
+    <div class="nav-buttons">
+        <button class="pixel-button" id="prevBtn">Précédent</button>
+        <button class="pixel-button" id="nextBtn">Suivant</button>
+    </div>
+    
+    <div class="slide-indicator" id="slideIndicator">1/11</div>
+    
+    <script>
+        console.log("Script chargé");
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log("Document chargé");
+            // Génération des pixels en arrière-plan
+            const pixelContainer = document.getElementById('pixelContainer');
+            const pixelCount = 50;
+            
+            for (let i = 0; i < pixelCount; i++) {
+                const pixel = document.createElement('div');
+                pixel.classList.add('pixel');
+                
+                // Position aléatoire
+                const x = Math.random() * window.innerWidth;
+                const y = Math.random() * window.innerHeight;
+                
+                // Taille aléatoire
+                const size = Math.random() * 20 + 5;
+                
+                // Couleur aléatoire
+                const colors = ['#8e44ad', '#3498db', '#f1c40f', '#2ecc71', '#e74c3c'];
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                
+                // Durée d'animation aléatoire
+                const duration = Math.random() * 20 + 10;
+                const delay = Math.random() * 10;
+                
+                pixel.style.left = `${x}px`;
+                pixel.style.top = `${y}px`;
+                pixel.style.width = `${size}px`;
+                pixel.style.height = `${size}px`;
+                pixel.style.backgroundColor = color;
+                pixel.style.animation = `float ${duration}s ${delay}s infinite linear`;
+                
+                pixelContainer.appendChild(pixel);
+            }
+            
+            // Gestion des diapositives
+            const slides = document.querySelectorAll('.slide');
+            const nextBtn = document.getElementById('nextBtn');
+            const prevBtn = document.getElementById('prevBtn');
+            const progressBar = document.getElementById('progressBar');
+            const slideIndicator = document.getElementById('slideIndicator');
+            
+            let currentSlide = 0;
+            
+            // Initialisation
+            updateProgressBar();
+            updateSlideIndicator();
+            
+            // Vérifier que les éléments sont bien sélectionnés
+            console.log("Slides trouvées:", slides.length);
+            console.log("Bouton Suivant trouvé:", nextBtn !== null);
+            console.log("Bouton Précédent trouvé:", prevBtn !== null);
+            
+            // Fonctions de navigation - avec vérification
+            nextBtn.addEventListener('click', function() {
+                console.log("Bouton Suivant cliqué");
+                if (currentSlide < slides.length - 1) {
+                    changeSlide(currentSlide + 1);
+                }
+            });
+            
+            prevBtn.addEventListener('click', function() {
+                console.log("Bouton Précédent cliqué");
+                if (currentSlide > 0) {
+                    changeSlide(currentSlide - 1);
+                }
+            });
+            
+            // Fonction pour changer de slide
+            function changeSlide(index) {
+                // S'assurer que l'index est valide
+                if (index < 0 || index >= slides.length) {
+                    console.error("Index de slide invalide:", index);
+                    return;
+                }
+                
+                console.log("Changement de slide:", currentSlide, "->", index);
+                
+                // Retirer la classe active de la slide actuelle
+                slides[currentSlide].classList.remove('active');
+                
+                // Mettre à jour l'index courant
+                currentSlide = index;
+                
+                // Ajouter la classe active à la nouvelle slide
+                slides[currentSlide].classList.add('active');
+                
+                // Mettre à jour les indicateurs
+                updateProgressBar();
+                updateSlideIndicator();
+            }
+            
+            function updateProgressBar() {
+                const progress = ((currentSlide + 1) / slides.length) * 100;
+                progressBar.style.width = `${progress}%`;
+            }
+            
+            function updateSlideIndicator() {
+                slideIndicator.textContent = `${currentSlide + 1}/${slides.length}`;
+            }
+            
+            // Easter egg - konami code
+            const konamiCode = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
+            let konamiCodePosition = 0;
+            
+            document.addEventListener('keydown', function(e) {
+                // Vérifier si la touche correspond à la séquence du Konami Code
+                if (e.key === konamiCode[konamiCodePosition]) {
+                    konamiCodePosition++;
+                    
+                    // Si toute la séquence est complétée
+                    if (konamiCodePosition === konamiCode.length) {
+                        // Easter egg activé!
+                        activateEasterEgg();
+                        konamiCodePosition = 0; // Réinitialiser pour permettre de l'entrer à nouveau
+                    }
+                } else {
+                    konamiCodePosition = 0; // Réinitialiser si une mauvaise touche est pressée
+                }
+            });
+
+            function activateEasterEgg() {
+        // Créer un effet d'easter egg - Par exemple, faire clignoter l'écran ou ajouter des pixels supplémentaires
+        document.body.classList.add('easter-egg');
+        
+        // Animation pour l'easter egg
+        const pixelContainer = document.getElementById('pixelContainer');
+        const extraPixelCount = 200;
+        
+        // Ajout de pixels supplémentaires
+        for (let i = 0; i < extraPixelCount; i++) {
+            const pixel = document.createElement('div');
+            pixel.classList.add('pixel', 'easter-egg-pixel');
+            
+            // Position aléatoire
+            const x = Math.random() * window.innerWidth;
+            const y = Math.random() * window.innerHeight;
+            
+            // Taille aléatoire, plus grande pour l'effet
+            const size = Math.random() * 30 + 10;
+            
+            // Couleur aléatoire, plus vive
+            const colors = ['#ff00ff', '#00ffff', '#ffff00', '#ff0000', '#00ff00', '#0000ff'];
+            const color = colors[Math.floor(Math.random() * colors.length)];
+            
+            // Durée d'animation aléatoire
+            const duration = Math.random() * 10 + 5;
+            const delay = Math.random() * 3;
+            
+            pixel.style.left = `${x}px`;
+            pixel.style.top = `${y}px`;
+            pixel.style.width = `${size}px`;
+            pixel.style.height = `${size}px`;
+            pixel.style.backgroundColor = color;
+            pixel.style.animation = `float ${duration}s ${delay}s infinite linear`;
+            pixel.style.zIndex = "100";
+            
+            pixelContainer.appendChild(pixel);
+        }
+        
+        // Jouer un son 8-bit si possible
+        const sound = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLHPM+N2lTxYEKHff8sVvIRIMT67y96RQGw88mej8wHMnCxIyc9TzsWAjDkSg7/mvVh0PNnXe+MpxJAgcTbDz9ppEFyw1ftr1wW4lCSNbtfj7legwFyVMnOXpkUMmESBCoOnymD8YJEqV6O6iUOwLAAAAAAAA');
+        sound.play().catch(e => console.log("Audio playback failed:", e));
+        
+        // Afficher un message secret
+        const secretMessage = document.createElement('div');
+        secretMessage.textContent = "MODE SECRET ACTIVÉ!";
+        secretMessage.style.position = "fixed";
+        secretMessage.style.top = "50%";
+        secretMessage.style.left = "50%";
+        secretMessage.style.transform = "translate(-50%, -50%)";
+        secretMessage.style.fontSize = "3rem";
+        secretMessage.style.color = "#f1c40f";
+        secretMessage.style.textShadow = "3px 3px 0 rgba(0,0,0,0.5)";
+        secretMessage.style.zIndex = "200";
+        secretMessage.style.fontFamily = "'Press Start 2P', 'Courier New', monospace";
+        secretMessage.style.animation = "pulse 1s infinite alternate";
+        document.body.appendChild(secretMessage);
+        
+        // Créer une animation pour le message
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes pulse {
+                0% { transform: translate(-50%, -50%) scale(1); }
+                100% { transform: translate(-50%, -50%) scale(1.2); }
+            }
+            .easter-egg {
+                animation: flashbg 0.5s 3;
+            }
+            @keyframes flashbg {
+                0% { background-color: var(--dark); }
+                50% { background-color: var(--primary); }
+                100% { background-color: var(--dark); }
+            }
+        `;
+        document.head.appendChild(style);
+        
+        // Supprimer le message après quelques secondes
+        setTimeout(() => {
+            document.body.removeChild(secretMessage);
+            document.body.classList.remove('easter-egg');
+            // Optionnel: supprimer les pixels supplémentaires après un certain temps
+            const easterEggPixels = document.querySelectorAll('.easter-egg-pixel');
+            easterEggPixels.forEach(pixel => {
+                pixel.style.animation = 'fadeOut 1s forwards';
+            });
+            setTimeout(() => {
+                easterEggPixels.forEach(pixel => {
+                    pixelContainer.removeChild(pixel);
+                });
+            }, 1000);
+        }, 5000);
+    }
+
+            // Adaptation pour les tailles d'écran
+            window.addEventListener('resize', function() {
+                // Ajuster les éléments en fonction de la nouvelle taille d'écran
+                const pixels = document.querySelectorAll('.pixel:not(.easter-egg-pixel)');
+                pixels.forEach(pixel => {
+                    const x = Math.random() * window.innerWidth;
+                    const y = Math.random() * window.innerHeight;
+                    pixel.style.left = `${x}px`;
+                    pixel.style.top = `${y}px`;
+                });
+            });
+
+            // Gestionnaire de swipe pour appareils tactiles
+            let touchStartX = 0;
+            let touchEndX = 0;
+
+            function checkSwipeDirection() {
+                if (touchEndX < touchStartX) {
+                    // Swipe gauche - aller à la diapositive suivante
+                    if (currentSlide < slides.length - 1) {
+                        changeSlide(currentSlide + 1);
+                    }
+                }
+                if (touchEndX > touchStartX) {
+                    // Swipe droit - aller à la diapositive précédente
+                    if (currentSlide > 0) {
+                        changeSlide(currentSlide - 1);
+                    }
+                }
+            }
+
+            document.addEventListener('touchstart', e => {
+                touchStartX = e.changedTouches[0].screenX;
+            });
+
+            document.addEventListener('touchend', e => {
+                touchEndX = e.changedTouches[0].screenX;
+                checkSwipeDirection();
+            });
+
+            // Précharger les polices et ressources
+            document.fonts.ready.then(() => {
+                // Lorsque les polices sont chargées, ajouter une classe au body
+                document.body.classList.add('fonts-loaded');
+            });
+            console.log("Script exécuté");
+        });
+    </script>
+</body>
+</html>
